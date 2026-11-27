@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Finanças</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<meta name="theme-color" content="#2563eb">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="icon" href="icone-192.png">
+<style>
+:root {
+  --fundo: #f4f6fb; --cartao: #ffffff; --texto: #141a2b; --suave: #69708a; --linha: #e6e9f2;
+  --azul: #2563eb; --azul-claro: #e8efff; --verde: #16a34a; --verde-claro: #e7f6ec;
+  --vermelho: #dc2626; --vermelho-claro: #fdecec; --amarelo: #b45309; --amarelo-claro: #fff4dc;
+  --sombra: 0 1px 2px rgba(20,26,43,.05), 0 4px 16px rgba(20,26,43,.05);
+  --c1:#2563eb; --c2:#f43f5e; --c3:#0891b2; --c4:#f59e0b; --c5:#8b5cf6; --c6:#10b981; --c7:#94a3b8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fundo: #0d111c; --cartao: #161b29; --texto: #eef1f8; --suave: #98a0b8; --linha: #262d40;
+    --azul: #6d9bff; --azul-claro: #1c2847; --verde: #4ade80; --verde-claro: #12301f;
+    --vermelho: #f87171; --vermelho-claro: #3a1717; --amarelo: #fbbf24; --amarelo-claro: #33270d;
+    --sombra: none;
+  }
+}
+:root[data-tema="escuro"] {
+  --fundo: #0d111c; --cartao: #161b29; --texto: #eef1f8; --suave: #98a0b8; --linha: #262d40;
+  --azul: #6d9bff; --azul-claro: #1c2847; --verde: #4ade80; --verde-claro: #12301f;
+  --vermelho: #f87171; --vermelho-claro: #3a1717; --amarelo: #fbbf24; --amarelo-claro: #33270d;
+  --sombra: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.topo { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--fundo) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--linha); }
+.topo-dentro { max-width: 1240px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.marca { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.marca-icone { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(140deg, #5b8cff, #2547c9); color: #fff; display: grid; place-items: center; font-weight: 700; }
+.marca b { display: block; font-size: 15px; } .marca small { color: var(--suave); font-size: 12px; }
+.mes { display: flex; align-items: center; gap: 6px; }
+.mes h1 { font-size: 20px; margin: 0 4px; min-width: 150px; text-align: center; letter-spacing: -.01em; }
+.mes h1 span { color: var(--suave); font-weight: 500; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.btn { background: var(--cartao); border: 1px solid var(--linha); border-radius: 10px; height: 36px; min-width: 36px; padding: 0 10px; display: inline-grid; place-items: center; }
+.btn:disabled { opacity: .35; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
+.casca { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 220px 1fr; gap: 0; align-items: start; }
+.menu { position: sticky; top: var(--alt-topo, 60px); padding: 16px 0 16px 16px; }
+.menu { min-width: 0; }
+.menu nav { background: var(--cartao); border: 1px solid var(--linha); border-radius: 18px; padding: 10px; box-shadow: var(--sombra); }
+.menu .rotulo { font-size: 11.5px; color: var(--suave); padding: 8px 10px 4px; text-transform: uppercase; letter-spacing: .04em; }
+.menu button { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; padding: 9px 10px; border-radius: 10px; text-align: left; font-size: 14.5px; }
+.menu button:hover { background: var(--fundo); }
+.menu button[aria-current="true"] { background: var(--azul-claro); color: var(--azul); font-weight: 600; }
+.menu button .qtd { margin-left: auto; font-size: 11.5px; color: var(--suave); font-weight: 500; }
+.menu .cats { max-height: 46vh; overflow-y: auto; }
+main { padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); min-width: 0; }
+#abrir-menu, .veu { display: none; }
+/* No celular o menu continua lateral: abre deslizando da esquerda pelo botao ☰ */
+@media (max-width: 980px) {
+  .casca { grid-template-columns: 1fr; }
+  #abrir-menu { display: inline-grid; font-size: 18px; }
+  .menu { position: fixed; top: 0; left: 0; bottom: 0; width: min(300px, 84vw); z-index: 30; padding: calc(env(safe-area-inset-top, 0px) + 12px) 12px calc(env(safe-area-inset-bottom, 0px) + 12px);
+    background: var(--fundo); overflow-y: auto; transform: translateX(-105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); box-shadow: 8px 0 30px rgba(0,0,0,.18); visibility: hidden; }
+  body.menu-aberto .menu { transform: none; visibility: visible; }
+  .menu .cats { max-height: none; }
+  .veu { display: block; position: fixed; inset: 0; z-index: 29; background: rgba(10,14,25,.45); opacity: 0; pointer-events: none; transition: opacity .28s; }
+  body.menu-aberto .veu { opacity: 1; pointer-events: auto; }
+  body.menu-aberto { overflow: hidden; }
+}
+/* evolucao e ritmo */
+.colunas { display: flex; align-items: flex-end; gap: 10px; height: 170px; padding-top: 8px; overflow-x: auto; }
+.colunas button { flex: 1 0 54px; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; border: 0; background: none; padding: 0; border-radius: 10px; }
+.colunas button[aria-current="true"] { background: var(--azul-claro); }
+.colunas .par { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 4px; }
+.colunas .par i { width: 14px; border-radius: 5px 5px 2px 2px; min-height: 3px; display: block; }
+.colunas small { font-size: 11.5px; color: var(--suave); padding-bottom: 4px; }
+.ritmo svg { width: 100%; height: auto; display: block; margin-top: 6px; }
+.chave { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--suave); border: 0; background: none; padding: 4px 0; }
+.chave i { width: 34px; height: 20px; border-radius: 999px; background: var(--linha); position: relative; transition: background .15s; flex: none; }
+.chave i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .15s; }
+.chave[aria-checked="true"] i { background: var(--azul); } .chave[aria-checked="true"] i::after { left: 16px; }
+.card { background: var(--cartao); border: 1px solid var(--linha); border-radius: 18px; padding: 18px; box-shadow: var(--sombra); min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 2px; } .card .sub { color: var(--suave); font-size: 12.5px; margin: 0 0 12px; }
+.s12 { grid-column: span 12; } .s8 { grid-column: span 8; } .s7 { grid-column: span 7; } .s6 { grid-column: span 6; } .s5 { grid-column: span 5; } .s4 { grid-column: span 4; }
+@media (max-width: 980px) { .s8, .s7, .s6, .s5, .s4 { grid-column: span 12; } }
+.grande { font-size: 44px; font-weight: 750; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.grande small { font-size: .45em; font-weight: 600; color: var(--suave); letter-spacing: 0; }
+.medio { font-size: 26px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.selo { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 2px 9px; font-size: 12px; font-weight: 600; }
+.selo.bom { background: var(--verde-claro); color: var(--verde); } .selo.ruim { background: var(--vermelho-claro); color: var(--vermelho); }
+.selo.neutro { background: var(--azul-claro); color: var(--azul); } .selo.alerta { background: var(--amarelo-claro); color: var(--amarelo); }
+.barra { display: flex; gap: 4px; height: 12px; margin: 18px 0 14px; }
+.barra i { display: block; border-radius: 999px; min-width: 6px; }
+.legenda { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 16px; }
+.legenda div { font-size: 12.5px; color: var(--suave); } .legenda b { display: block; color: var(--texto); font-size: 14.5px; }
+.bola { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.linha-resumo { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: baseline; margin-top: 4px; }
+.linha-resumo div { font-size: 13px; color: var(--suave); } .linha-resumo b { font-size: 16px; color: var(--texto); display: block; }
+.verde { color: var(--verde) !important; } .vermelho { color: var(--vermelho) !important; }
+.aviso { grid-column: span 12; background: var(--amarelo-claro); color: var(--amarelo); border-radius: 14px; padding: 10px 14px; font-size: 13.5px; }
+/* rosca */
+.rosca-caixa { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.rosca { position: relative; width: 190px; height: 190px; margin: 4px auto; flex: none; }
+.rosca svg { transform: rotate(-90deg); }
+.rosca .meio { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.rosca .meio small { color: var(--suave); font-size: 12px; } .rosca .meio b { font-size: 18px; }
+.lista { list-style: none; margin: 0; padding: 0; flex: 1; min-width: 220px; }
+.lista li { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--linha); font-size: 14px; }
+.lista li:last-child { border-bottom: 0; }
+.lista .nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista .var { font-size: 11.5px; width: 62px; text-align: right; }
+.lista button.nome { background: none; border: 0; padding: 0; text-align: left; }
+/* cartoes */
+/* carteira: cartoes empilhados como na Wallet do iPhone */
+.carteira { position: relative; max-width: 400px; margin: 4px auto 0; display: flow-root; }
+.carteira .espaco { width: 100%; aspect-ratio: 1.586; }
+.plastico { position: absolute; left: 0; right: 0; aspect-ratio: 1.586; border-radius: 18px; padding: 18px 20px; color: #fff; overflow: hidden; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 10px 28px rgba(15, 18, 40, .28), inset 0 1px 0 rgba(255,255,255,.18);
+  transition: top .5s cubic-bezier(.2,.8,.2,1), transform .5s cubic-bezier(.2,.8,.2,1), filter .3s; -webkit-tap-highlight-color: transparent; }
+.plastico::before { content: ""; position: absolute; inset: -40% -20% auto auto; width: 75%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.22), transparent 65%); pointer-events: none; }
+.plastico::after { content: ""; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.08) 50%, transparent 60%); pointer-events: none; }
+.plastico:not(.escolhido):hover { transform: translateY(-6px); }
+.plastico:focus-visible { outline: 3px solid var(--azul); outline-offset: 3px; }
+.plastico .linha1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; position: relative; }
+.plastico .banco { font-weight: 800; font-size: 19px; letter-spacing: -.02em; }
+.plastico .produto { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(255,255,255,.18); letter-spacing: .03em; text-transform: uppercase; }
+.plastico .meio-p { display: flex; align-items: center; gap: 10px; position: relative; }
+.chip { width: 44px; height: 33px; border-radius: 7px; background: linear-gradient(135deg, #f8e39a, #d4a93b 45%, #f3d77c 60%, #b8882a); position: relative; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.chip::before { content: ""; position: absolute; inset: 7px 0; border-top: 1px solid rgba(0,0,0,.25); border-bottom: 1px solid rgba(0,0,0,.25); }
+.chip::after { content: ""; position: absolute; inset: 0 15px; border-left: 1px solid rgba(0,0,0,.25); border-right: 1px solid rgba(0,0,0,.25); }
+.plastico .linha3 { display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; position: relative; }
+.plastico .linha3 small { display: block; font-size: 10.5px; opacity: .8; letter-spacing: .04em; text-transform: uppercase; }
+.plastico .linha3 b { font-size: 17px; font-variant-numeric: tabular-nums; }
+.bandeira-mc { display: flex; } .bandeira-mc i { width: 26px; height: 26px; border-radius: 50%; display: block; }
+.bandeira-mc i:first-child { background: #eb001b; } .bandeira-mc i:last-child { background: #f79e1b; margin-left: -10px; mix-blend-mode: screen; opacity: .95; }
+.bandeira-visa { font: italic 900 22px/1 Arial, sans-serif; letter-spacing: -.02em; }
+.detalhe-cartao { margin-top: 16px; }
+.uso-barra { height: 8px; border-radius: 9px; background: var(--linha); overflow: hidden; margin: 8px 0 6px; }
+.uso-barra i { display: block; height: 100%; border-radius: 9px; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; color: var(--suave); }
+.trio b { display: block; font-size: 15px; color: var(--texto); }
+.faturas button { font: inherit; text-align: left; cursor: pointer; background: var(--cartao); }
+.faturas { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 12px; }
+.fatura { border: 1px solid var(--linha); border-radius: 12px; padding: 8px 10px; font-size: 12px; color: var(--suave); }
+.fatura b { display: block; font-size: 14.5px; color: var(--texto); }
+.fatura.aberta { border-color: var(--azul); background: var(--azul-claro); }
+.fatura.do-mes { outline: 2px solid var(--verde); outline-offset: 1px; }
+/* lancamentos */
+.busca { width: 100%; height: 38px; border-radius: 10px; border: 1px solid var(--linha); background: var(--fundo); color: var(--texto); padding: 0 12px; font: inherit; margin-bottom: 8px; }
+.lanc { display: grid; grid-template-columns: 52px 1fr auto; gap: 2px 10px; padding: 9px 0; border-bottom: 1px solid var(--linha); align-items: center; }
+.lanc:last-child { border-bottom: 0; }
+.lanc .dia { font-size: 12px; color: var(--suave); text-align: center; line-height: 1.1; } .lanc .dia b { display: block; font-size: 17px; color: var(--texto); }
+.lanc .desc { min-width: 0; } .lanc .desc div { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lanc .meta { font-size: 12px; color: var(--suave); } .lanc .nota { font-size: 12px; color: var(--azul); white-space: normal !important; }
+.mais { margin-top: 8px; width: 100%; }
+.vazio { color: var(--suave); font-size: 13.5px; padding: 8px 0; }
+.ocultar .num, .ocultar .grande, .ocultar .medio, .ocultar .rosca .meio b { filter: blur(7px); }
+.entrada { position: fixed; inset: 0; z-index: 20; background: var(--fundo); display: grid; place-items: center; padding: 24px 16px; }
+.entrada[hidden] { display: none; }
+.entrada form { width: min(360px, 100%); background: var(--cartao); border: 1px solid var(--linha); border-radius: 20px; padding: 24px; box-shadow: var(--sombra); display: grid; gap: 12px; }
+.entrada h2 { margin: 0; font-size: 20px; } .entrada p { margin: 0; color: var(--suave); font-size: 13.5px; }
+.entrada input[type=password] { height: 44px; border-radius: 12px; border: 1px solid var(--linha); background: var(--fundo); color: var(--texto); padding: 0 14px; font: inherit; font-size: 16px; }
+.entrada .entrar { height: 44px; border-radius: 12px; border: 0; background: var(--azul); color: #fff; font-weight: 600; }
+.entrada label { font-size: 13px; color: var(--suave); display: flex; gap: 8px; align-items: center; }
+.entrada .erro { color: var(--vermelho); font-size: 13px; min-height: 1em; }
+footer { max-width: 1240px; margin: 0 auto; padding: 0 16px 28px; color: var(--suave); font-size: 12px; }
+@media (max-width: 560px) { .grande { font-size: 36px; } .mes h1 { min-width: 0; font-size: 17px; } .marca { display: none; } .topo-dentro { flex-wrap: nowrap; gap: 6px; } .btn { min-width: 32px; padding: 0 6px; } }
+</style>
+</head>
+<body>
+<header class="topo"><div class="topo-dentro">
+  <button class="btn" id="abrir-menu" aria-label="Abrir menu" aria-controls="menu" aria-expanded="false">☰</button>
+  <div class="marca"><div class="marca-icone">F</div><div><b>Finanças</b><small>Painel pessoal</small></div></div>
+  <div class="mes">
+    <button class="btn" id="ant" aria-label="Mês anterior">‹</button>
+    <h1 id="titulo-mes"></h1>
+    <button class="btn" id="prox" aria-label="Próximo mês">›</button>
+  </div>
+  <button class="btn" id="olho" aria-label="Esconder valores" title="Esconder valores">👁</button>
+  <button class="btn" id="tema" aria-label="Trocar tema" title="Trocar tema">◐</button>
+</div></header>
+
+<div class="casca">
+  <div class="veu" id="veu"></div>
+  <aside class="menu"><nav id="menu" aria-label="Seções"></nav></aside>
+  <main id="painel"></main>
+</div>
+<footer id="rodape"></footer>
+
+<div class="entrada" id="entrada" hidden>
+  <form id="form-entrada" autocomplete="on">
+    <div class="marca-icone" style="width:44px;height:44px;border-radius:14px;font-size:20px">F</div>
+    <h2>Finanças</h2>
+    <p>Digite a senha para abrir. Os dados chegam trancados e só se abrem aqui no aparelho.</p>
+    <input type="text" name="username" value="financas" autocomplete="username" hidden>
+    <input type="password" id="senha" name="password" autocomplete="current-password" placeholder="Senha" required>
+    <label><input type="checkbox" id="lembrar"> Lembrar neste aparelho</label>
+    <button class="entrar" type="submit">Abrir</button>
+    <div class="erro" id="erro" role="alert"></div>
+  </form>
+</div>
+
+<script id="dados" type="application/json">null</script>
+<script>
+let D = null
+// Versao do aplicativo: a pagina vem sem dados (null) e busca dados.json, trancado com a senha
+// (AES-GCM, chave derivada da senha por PBKDF2). Versao do computador: os dados ja vem aqui.
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0))
+async function chaveDaSenha(senha, cofre) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveKey'])
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(cofre.sal), iterations: cofre.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt'])
+}
+async function abrir(chave, cofre) {
+  const claro = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(cofre.iv) }, chave, b64(cofre.dados))
+  return JSON.parse(new TextDecoder().decode(claro))
+}
+async function obterDados() {
+  const local = JSON.parse(document.getElementById('dados').textContent)
+  if (local) return local
+  if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {})
+  const cofre = await fetch('dados.json', { cache: 'no-cache' }).then(r => r.json())
+  const salva = lembrar('painel-chave')
+  if (salva) {
+    try {
+      const chave = await crypto.subtle.importKey('raw', b64(salva), 'AES-GCM', false, ['decrypt'])
+      return await abrir(chave, cofre)
+    } catch { guardar('painel-chave', '') }
+  }
+  const tela = document.getElementById('entrada'); tela.hidden = false
+  return new Promise(resolve => {
+    document.getElementById('form-entrada').addEventListener('submit', async ev => {
+      ev.preventDefault()
+      const erro = document.getElementById('erro'); erro.textContent = 'Abrindo…'
+      try {
+        const chave = await chaveDaSenha(document.getElementById('senha').value, cofre)
+        const dados = await abrir(chave, cofre)
+        if (document.getElementById('lembrar').checked) {
+          const bruta = new Uint8Array(await crypto.subtle.exportKey('raw', chave))
+          guardar('painel-chave', btoa(String.fromCharCode(...bruta)))
+        }
+        tela.hidden = true; resolve(dados)
+      } catch { erro.textContent = 'Senha errada. Tente de novo.' }
+    })
+  })
+}
+const CORES = ['--c1','--c2','--c3','--c4','--c5','--c6','--c7'].map(v => getComputedStyle(document.documentElement).getPropertyValue(v).trim())
+const NOMES_MES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+const CURTO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
+const guardar = (k, v) => { try { localStorage.setItem(k, v) } catch {} }
+const lembrar = (k) => { try { return localStorage.getItem(k) } catch { return null } }
+
+let mesAtual = null
+let filtroCategoria = null
+let quantosLanc = 15
+let aba = 'geral'
+let soFaturaMes = lembrar('painel-fatura-mes') === '1'
+
+const reais = c => (c < 0 ? '-' : '') + 'R$ ' + (Math.abs(c) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const pct = (a, b) => b ? Math.round(a / b * 100) : 0
+const nomeMes = m => NOMES_MES[+m.slice(5) - 1]
+const dataCurta = d => `${d.slice(8)}/${d.slice(5, 7)}`
+// Fatura pelo mes em que vence (a aberta, pelo vencimento previsto, como o app do banco mostra).
+const vencimentoFatura = f => (typeof f === 'string' ? f : f.prevista || f.fatura).replace('~', '')
+const nomeFatura = f => {
+  const aberta = (typeof f === 'string' ? f : f.fatura).startsWith('~'); const m = vencimentoFatura(f)
+  return `${CURTO[+m.slice(5, 7) - 1]}/${m.slice(2, 4)}` + (aberta ? ' · aberta' : '') + (m.length > 7 ? ` · vence ${m.slice(8, 10)}` : '')
+}
+// Monta elementos com texto puro: nada vindo dos bancos vira HTML.
+function el(tag, props = {}, ...filhos) {
+  const e = document.createElement(tag)
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v
+    else if (k === 'style') e.style.cssText = v
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v)
+    else e.setAttribute(k, v)
+  }
+  for (const f of filhos.flat()) if (f !== null && f !== undefined && f !== false) e.append(f instanceof Node ? f : String(f))
+  return e
+}
+const valorGrande = c => {
+  const [int, dec] = (Math.abs(c) / 100).toFixed(2).split('.')
+  return el('div', { class: 'grande' + (c < 0 ? ' vermelho' : '') }, el('small', {}, (c < 0 ? '-' : '') + 'R$ '), Number(int).toLocaleString('pt-BR'), el('small', {}, ',' + dec))
+}
+const variacao = (atual, anterior, menorEhMelhor = true) => {
+  if (!anterior) return null
+  const v = Math.round((atual - anterior) / anterior * 100)
+  const bom = menorEhMelhor ? v <= 0 : v >= 0
+  return el('span', { class: 'selo ' + (bom ? 'bom' : 'ruim') }, (v > 0 ? '↑ ' : v < 0 ? '↓ ' : '') + Math.abs(v) + '% vs mês anterior')
+}
+
+function resumo(M) {
+  const top = M.categorias.slice(0, 5)
+  const resto = M.gastos - top.reduce((s, c) => s + c.valor, 0)
+  const fatias = [...top.map((c, i) => ({ nome: c.nome, valor: c.valor, cor: CORES[i] })), ...(resto > 0 ? [{ nome: 'Outras', valor: resto, cor: CORES[6] }] : [])]
+  const sobra = M.resultado
+  const base = Math.max(M.entradas, M.gastos)
+  return el('section', { class: 'card s8' },
+    el('h2', {}, 'Resultado do mês'),
+    el('p', { class: 'sub' }, 'Tudo o que entrou menos tudo o que foi gasto (sem faturas, transferências entre suas contas e aplicações)'),
+    el('div', { style: 'display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center' },
+      valorGrande(sobra),
+      el('div', {},
+        el('span', { class: 'selo ' + (sobra >= 0 ? 'bom' : 'ruim') }, sobra >= 0 ? `sobrou ${pct(sobra, M.entradas)}% do que entrou` : 'gastou mais do que entrou'))),
+    el('div', { class: 'barra', role: 'img', 'aria-label': 'Divisão dos gastos e da sobra' },
+      ...fatias.map(f => el('i', { style: `flex:${f.valor};background:${f.cor}`, title: `${f.nome}: ${reais(f.valor)}` })),
+      sobra > 0 ? el('i', { style: `flex:${sobra};background:var(--verde)`, title: `Sobra: ${reais(sobra)}` }) : null),
+    el('div', { class: 'legenda' },
+      el('div', {}, 'Entradas', el('b', { class: 'num verde' }, reais(M.entradas))),
+      el('div', {}, 'Gastos', el('b', { class: 'num' }, reais(M.gastos))),
+      ...fatias.map(f => el('div', {}, el('span', { class: 'bola', style: `background:${f.cor}` }), f.nome, el('b', { class: 'num' }, reais(f.valor), el('span', { style: 'color:var(--suave);font-size:11.5px;font-weight:500' }, ` ${pct(f.valor, M.entradas || base)}%`))))),
+    el('div', { style: 'margin-top:12px;display:flex;gap:8px;flex-wrap:wrap' },
+      variacao(M.gastos, M.gastosAnterior),
+      M.parcelasTotal ? el('span', { class: 'selo neutro' }, `${M.parcelas.length} parcela(s) no mês: `, el('span', { class: 'num' }, reais(M.parcelasTotal))) : null))
+}
+
+// Fatura de um cartao que vence no mes escolhido (a fechada, se houver; senao a aberta).
+function faturaDoMes(c, mes) {
+  const doMes = c.faturas.filter(f => vencimentoFatura(f).startsWith(mes))
+  return doMes.find(f => !f.fatura.startsWith('~')) || doMes[0] || null
+}
+function patrimonio(largura = 's4') {
+  const caixa = D.saldoContas.reduce((s, c) => s + c.valor, 0)
+  const porCartao = D.cartoes.map(c => ({ nome: c.nome.replace(/ (Mastercard|Visa).*/, ''), valor: soFaturaMes ? (faturaDoMes(c, mesAtual)?.valor ?? 0) : c.devido }))
+  const divida = porCartao.reduce((s, c) => s + c.valor, 0)
+  const sobra = caixa + D.totalInvestido - divida
+  const chave = el('button', { class: 'chave', role: 'switch', 'aria-checked': String(soFaturaMes), onclick: () => { soFaturaMes = !soFaturaMes; guardar('painel-fatura-mes', soFaturaMes ? '1' : '0'); desenhar() } },
+    el('i'), 'Só as faturas de ' + nomeMes(mesAtual).toLowerCase())
+  return el('section', { class: 'card ' + largura },
+    el('h2', {}, 'Quanto eu tenho'),
+    el('p', { class: 'sub' }, 'Saldos de hoje nas contas e investimentos conectados'),
+    valorGrande(caixa + D.totalInvestido),
+    el('ul', { class: 'lista', style: 'margin-top:10px' },
+      ...D.saldoContas.map(c => el('li', {}, el('span', { class: 'nome' }, c.nome), el('b', { class: 'num' }, reais(c.valor)))),
+      D.totalInvestido ? el('li', {}, el('span', { class: 'nome' }, 'Investimentos'), el('b', { class: 'num' }, reais(D.totalInvestido))) : null),
+    el('div', { style: 'margin-top:12px;padding-top:10px;border-top:1px solid var(--linha)' },
+      chave,
+      el('ul', { class: 'lista' },
+        el('li', {}, el('span', { class: 'nome', style: 'font-weight:600' }, soFaturaMes ? 'Faturas de ' + nomeMes(mesAtual).toLowerCase() : 'Devendo nos cartões (tudo)'), el('b', { class: 'num vermelho' }, reais(-divida))),
+        ...porCartao.filter(c => c.valor).map(c => el('li', { style: 'font-size:13px;color:var(--suave)' }, el('span', { class: 'nome' }, '· ' + c.nome), el('span', { class: 'num' }, reais(-c.valor)))),
+        el('li', {}, el('span', { class: 'nome', style: 'font-weight:600' }, 'Sobra depois dos cartões'), el('b', { class: 'num ' + (sobra >= 0 ? 'verde' : 'vermelho') }, reais(sobra)))),
+      el('p', { class: 'sub', style: 'margin:6px 0 0' }, soFaturaMes ? 'Soma dos lançamentos das faturas que vencem neste mês.' : 'Tudo o que está usado nos cartões, inclusive parcelas que ainda vão vencer.')))
+}
+
+function rosca(M) {
+  const total = M.gastos
+  const r = 80, comp = 2 * Math.PI * r
+  let acum = 0
+  const top = M.categorias.slice(0, 6)
+  const resto = total - top.reduce((s, c) => s + c.valor, 0)
+  const fatias = [...top.map((c, i) => ({ ...c, cor: CORES[i] })), ...(resto > 0 ? [{ nome: 'Outras', valor: resto, cor: CORES[6] }] : [])]
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('viewBox', '0 0 190 190'); svg.setAttribute('width', '190'); svg.setAttribute('height', '190')
+  for (const f of fatias) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+    const tam = total ? f.valor / total * comp : 0
+    Object.entries({ cx: 95, cy: 95, r, fill: 'none', stroke: f.cor, 'stroke-width': 24, 'stroke-dasharray': `${Math.max(tam - 2, 0)} ${comp}`, 'stroke-dashoffset': -acum }).forEach(([k, v]) => c.setAttribute(k, v))
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'title'); t.textContent = `${f.nome}: ${reais(f.valor)}`; c.append(t)
+    svg.append(c); acum += tam
+  }
+  return el('section', { class: 'card s6' },
+    el('h2', {}, 'Gastos por categoria'),
+    el('p', { class: 'sub' }, 'Toque numa categoria para ver os lançamentos dela'),
+    el('div', { class: 'rosca-caixa' },
+      el('div', { class: 'rosca' }, svg, el('div', { class: 'meio' }, el('small', {}, 'Total gasto'), el('b', { class: 'num' }, reais(total)))),
+      el('ul', { class: 'lista' }, ...M.categorias.map((c, i) => {
+        const v = c.anterior ? Math.round((c.valor - c.anterior) / c.anterior * 100) : null
+        return el('li', {},
+          el('span', { class: 'bola', style: `background:${CORES[Math.min(i, 6)]}` }),
+          el('button', { class: 'nome', onclick: () => irPara('lancamentos', c.nome) }, c.nome),
+          el('span', { class: 'var ' + (v === null ? '' : v > 0 ? 'vermelho' : 'verde') }, v === null ? 'novo' : (v > 0 ? '↑' : '↓') + Math.abs(v) + '%'),
+          el('b', { class: 'num' }, reais(c.valor)))
+      }))))
+}
+
+// Cores de cada banco (so cores e nome em texto: nenhum logotipo).
+function estiloBanco(nome) {
+  const n = nome.toLowerCase()
+  if (/^nu /.test(n) || n.includes('nubank')) return { banco: 'Nubank', fundo: 'linear-gradient(140deg,#a12ee8 0%,#820ad1 45%,#4a0577 100%)' }
+  if (n.includes('mercado pago')) return { banco: 'Mercado Pago', fundo: 'linear-gradient(140deg,#28c3f0 0%,#009ee3 45%,#0a55b5 100%)' }
+  if (n.includes('c6')) return { banco: 'C6 Bank', fundo: 'linear-gradient(140deg,#3a3a3a 0%,#1b1b1b 50%,#050505 100%)' }
+  if (n.includes('inter')) return { banco: 'Inter', fundo: 'linear-gradient(140deg,#ff9a3c 0%,#ff7a00 45%,#c24e00 100%)' }
+  if (n.includes('xp')) return { banco: 'XP', fundo: 'linear-gradient(140deg,#2b2b2b 0%,#111 60%,#000 100%)' }
+  if (n.includes('itau') || n.includes('itaú')) return { banco: 'Itaú', fundo: 'linear-gradient(140deg,#ff8a1f 0%,#ec7000 50%,#163b8c 100%)' }
+  return { banco: nome.split(' ')[0], fundo: 'linear-gradient(140deg,#4f7cff,#2547c9)' }
+}
+let cartaoSel = Number(lembrar('painel-cartao') || 0)
+let faturaSel = null
+const FAIXA = 52 // quanto de cada cartao de tras aparece na pilha
+
+function plastico(c, aoTocar) {
+  const e = estiloBanco(c.nome)
+  const produto = (c.nome.match(/(Gold|Platinum|Black|Infinite|Signature|Ultravioleta|Internacional)/i) || [''])[0]
+  const bandeira = /visa/i.test(c.nome) ? el('span', { class: 'bandeira-visa' }, 'VISA') : /master/i.test(c.nome) ? el('span', { class: 'bandeira-mc', 'aria-label': 'Mastercard' }, el('i'), el('i')) : null
+  const contato = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  contato.setAttribute('viewBox', '0 0 24 24'); contato.setAttribute('width', '22'); contato.setAttribute('height', '22')
+  for (const r of [5, 9, 13]) {
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+    p.setAttribute('d', `M${4 + r * .55} ${12 - r * .75} A ${r} ${r} 0 0 1 ${4 + r * .55} ${12 + r * .75}`)
+    Object.entries({ fill: 'none', stroke: 'rgba(255,255,255,.85)', 'stroke-width': 1.8, 'stroke-linecap': 'round' }).forEach(([k, v]) => p.setAttribute(k, v))
+    contato.append(p)
+  }
+  const vence = c.vence ? `Vence dia ${c.vence.slice(8, 10)}` : 'Cartão'
+  return el('div', { class: 'plastico', role: 'button', tabindex: '0', 'aria-label': `${e.banco}: usado ${reais(c.devido)}`, style: `background:${e.fundo}`,
+      onclick: aoTocar, onkeydown: ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); aoTocar() } } },
+    el('div', { class: 'linha1' }, el('span', { class: 'banco' }, e.banco), produto ? el('span', { class: 'produto' }, produto) : null),
+    el('div', { class: 'meio-p' }, el('div', { class: 'chip' }), contato),
+    el('div', { class: 'linha3' },
+      el('div', {}, el('small', {}, vence), el('b', { class: 'num' }, reais(c.devido))),
+      el('div', { style: 'text-align:right' }, el('small', {}, 'Livre'), el('b', { class: 'num', style: 'font-size:14px' }, reais(c.disponivel))),
+      bandeira))
+}
+
+// Lancamentos de uma fatura, juntando todos os meses (uma fatura passa de um mes para o outro).
+const lancamentosDaFatura = (c, fat) => D.meses.flatMap(m => D.porMes[m].lancamentos)
+  .filter(t => t.conta === c.nome && t.fatura === fat && t.categoria !== 'Pagamento de fatura')
+  .sort((a, b) => b.data.localeCompare(a.data))
+
+function detalheCartao(c, completo) {
+  const e = estiloBanco(c.nome)
+  const usoPct = Math.min(100, pct(c.devido, c.limite))
+  const fats = c.faturas.slice(completo ? -6 : -4)
+  const atual = fats.find(f => f.fatura === faturaSel) || faturaDoMes(c, mesAtual) || fats.at(-1)
+  const lista = atual ? lancamentosDaFatura(c, atual.fatura) : []
+  return el('div', { class: 'detalhe-cartao' },
+    el('div', { class: 'trio' },
+      el('div', {}, 'Usado', el('b', { class: 'num' }, reais(c.devido))),
+      el('div', {}, 'Livre', el('b', { class: 'num verde' }, reais(c.disponivel))),
+      el('div', {}, 'Limite', el('b', { class: 'num' }, reais(c.limite)))),
+    el('div', { class: 'uso-barra', role: 'img', 'aria-label': `${usoPct}% do limite usado` }, el('i', { style: `width:${usoPct}%;background:${e.fundo}` })),
+    el('div', { style: 'font-size:12px;color:var(--suave)' }, `${usoPct}% do limite usado`),
+    fats.length ? el('div', { class: 'faturas' }, ...fats.map(f => el('button', {
+        class: 'fatura' + (f.fatura.startsWith('~') ? ' aberta' : '') + (f === atual ? ' do-mes' : ''),
+        onclick: () => { faturaSel = f.fatura; desenhar() } }, nomeFatura(f), el('b', { class: 'num' }, reais(f.valor)), f.doBanco ? el('small', {}, 'valor do banco') : null))) : null,
+    atual ? el('div', { style: 'margin-top:12px' },
+      el('div', { style: 'font-size:13px;font-weight:600;margin-bottom:4px' }, `Fatura ${nomeFatura(atual)} · ${lista.length} lançamento(s)` + (atual.doBanco && atual.somaLancamentos !== atual.valor ? ` · o banco cobrou ${reais(atual.valor)}; os lançamentos que chegaram somam ${reais(atual.somaLancamentos)}` : '')),
+      ...lista.slice(0, completo ? 200 : 5).map(t => el('div', { class: 'lanc' },
+        el('div', { class: 'dia' }, el('b', {}, t.data.slice(8)), CURTO[+t.data.slice(5, 7) - 1]),
+        el('div', { class: 'desc' }, el('div', { title: t.descricao }, t.descricao), el('div', { class: 'meta' }, t.categoria, t.parcela ? ' · ' + t.parcela : ''), t.nota ? el('div', { class: 'nota' }, '📝 ', t.nota) : null),
+        el('b', { class: 'num ' + (t.valor > 0 ? 'verde' : '') }, (t.valor > 0 ? '+' : '') + reais(t.valor)))),
+      !completo && lista.length > 5 ? el('button', { class: 'btn mais', onclick: () => irPara('cartoes') }, `Ver a fatura inteira (${lista.length})`) : null) : null)
+}
+
+function cartoes(M, completo = false) {
+  if (!D.cartoes.length) return null
+  if (cartaoSel >= D.cartoes.length) cartaoSel = 0
+  const n = D.cartoes.length
+  const caixa = el('div', { class: 'carteira' }, el('div', { class: 'espaco', style: `margin-top:${(n - 1) * FAIXA}px` }))
+  // Os de tras ficam em cima, mostrando so a faixa de cima; o escolhido fica inteiro na frente.
+  const arrumar = () => {
+    let pos = 0
+    ;[...caixa.querySelectorAll('.plastico')].forEach((p, i) => {
+      const sel = i === cartaoSel
+      p.classList.toggle('escolhido', sel)
+      p.style.top = sel ? `${(n - 1) * FAIXA}px` : `${(pos++) * FAIXA}px`
+      p.style.zIndex = sel ? 50 : pos
+      p.setAttribute('aria-pressed', String(sel))
+    })
+  }
+  D.cartoes.forEach((c, i) => caixa.append(plastico(c, () => {
+    if (i === cartaoSel) return
+    cartaoSel = i; faturaSel = null; guardar('painel-cartao', String(i)); arrumar()
+    const velho = caixa.parentElement.querySelector('.detalhe-cartao')
+    velho.replaceWith(detalheCartao(D.cartoes[i], completo))
+  })))
+  arrumar()
+  return el('section', { class: 'card ' + (completo ? 's12' : 's6') },
+    el('h2', {}, 'Cartões'),
+    el('p', { class: 'sub' }, 'Toque num cartão para ver os detalhes, como na Wallet'),
+    caixa,
+    detalheCartao(D.cartoes[cartaoSel], completo))
+}
+
+function entradas(M) {
+  return el('section', { class: 'card s5' },
+    el('h2', {}, 'De onde veio o dinheiro'),
+    el('p', { class: 'sub' }, 'Entradas do mês por categoria'),
+    el('div', { style: 'display:flex;gap:10px;align-items:center;flex-wrap:wrap' }, el('div', { class: 'medio num verde' }, reais(M.entradas)), variacao(M.entradas, M.entradasAnterior, false)),
+    M.entradasPorCategoria.length
+      ? el('ul', { class: 'lista', style: 'margin-top:8px' }, ...M.entradasPorCategoria.map(c => el('li', {}, el('span', { class: 'nome' }, c.nome), el('span', { class: 'var' }, pct(c.valor, M.entradas) + '%'), el('b', { class: 'num' }, reais(c.valor)))))
+      : el('p', { class: 'vazio' }, 'Nenhuma entrada neste mês.'))
+}
+
+function parcelas(M) {
+  return el('section', { class: 'card s7' },
+    el('h2', {}, 'Parcelas do mês'),
+    el('p', { class: 'sub' }, 'Compras parceladas que caíram neste mês'),
+    M.parcelas.length
+      ? el('ul', { class: 'lista' }, ...M.parcelas.sort((a, b) => b.valor - a.valor).map(p => el('li', {},
+          el('span', { class: 'selo alerta', style: 'flex:none' }, p.parcela),
+          el('span', { class: 'nome', title: p.descricao }, p.descricao, el('span', { style: 'color:var(--suave);font-size:12px' }, ` · ${p.conta.replace(/ (Mastercard|Visa).*/, '')}`)),
+          el('b', { class: 'num' }, reais(p.valor)))))
+      : el('p', { class: 'vazio' }, 'Nenhuma parcela neste mês.'))
+}
+
+function lancamentos(M) {
+  const termo = (document.getElementById('busca')?.value || '').toLowerCase()
+  let lista = M.lancamentos.filter(t => t.categoria !== 'Pagamento de fatura')
+  if (filtroCategoria) lista = lista.filter(t => t.categoria === filtroCategoria)
+  if (termo) lista = lista.filter(t => (t.descricao + ' ' + t.categoria + ' ' + t.nota).toLowerCase().includes(termo))
+  const busca = el('input', { class: 'busca', id: 'busca', type: 'search', placeholder: 'Buscar por nome, categoria ou comentário', value: termo })
+  busca.addEventListener('input', () => { quantosLanc = 30; const pos = busca.selectionStart; desenhar(); const b = document.getElementById('busca'); b.focus(); b.setSelectionRange(pos, pos) })
+  return el('section', { class: 'card s12', id: 'lancamentos' },
+    el('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap' },
+      el('div', {}, el('h2', {}, 'Lançamentos'), el('p', { class: 'sub' }, `${lista.length} lançamento(s)` + (filtroCategoria ? ` em ${filtroCategoria}` : ''))),
+      filtroCategoria ? el('button', { class: 'btn', onclick: () => { filtroCategoria = null; desenhar() } }, '✕ ' + filtroCategoria) : null,
+      aba === 'geral' ? el('button', { class: 'btn', onclick: () => irPara('lancamentos') }, 'Ver todos') : null),
+    busca,
+    lista.length ? el('div', {}, ...lista.slice(0, quantosLanc).map(t => el('div', { class: 'lanc' },
+      el('div', { class: 'dia' }, el('b', {}, t.data.slice(8)), CURTO[+t.data.slice(5, 7) - 1]),
+      el('div', { class: 'desc' },
+        el('div', { title: t.descricao }, t.descricao),
+        el('div', { class: 'meta' }, t.categoria, ' · ', t.conta.replace(/ (Mastercard|Visa).*/, ' (cartão)'), t.parcela ? ` · ${t.parcela}` : '', t.origem === 'davi' ? ' · ✔ você' : ''),
+        t.nota ? el('div', { class: 'nota' }, '📝 ', t.nota) : null),
+      el('b', { class: 'num ' + (t.valor > 0 ? 'verde' : '') }, (t.valor > 0 ? '+' : '') + reais(t.valor))))) : el('p', { class: 'vazio' }, 'Nada encontrado.'),
+    lista.length > quantosLanc ? el('button', { class: 'btn mais', onclick: () => { quantosLanc += 30; desenhar() } }, `Ver mais (${lista.length - quantosLanc})`) : null)
+}
+
+// Grupos: Essenciais, Estilo de vida, Trabalho, Sem destino e o que foi guardado (Futuro).
+const COR_GRUPO = { 'Essenciais': 'var(--c1)', 'Estilo de vida': 'var(--c2)', 'Trabalho': 'var(--c3)', 'Sem destino': 'var(--c7)', 'Futuro': 'var(--verde)' }
+function grupos(M, largura = 's4') {
+  if (!M.grupos?.length) return null
+  const linhas = [...M.grupos, ...(M.futuro > 0 ? [{ nome: 'Futuro', valor: M.futuro }] : [])]
+  const base = Math.max(M.entradas, linhas.reduce((s, g) => s + g.valor, 0), 1)
+  return el('section', { class: 'card ' + largura },
+    el('h2', {}, 'Para onde foi o dinheiro'),
+    el('p', { class: 'sub' }, 'Por grupo, em % do que entrou no mês. Futuro = o que foi para aplicações e aportes (guardado, não gasto)'),
+    el('ul', { class: 'lista' }, ...linhas.map(g => el('li', { style: 'flex-wrap:wrap;gap:4px 8px' },
+      el('span', { class: 'bola', style: 'background:' + COR_GRUPO[g.nome] }),
+      el('span', { class: 'nome' }, g.nome, el('span', { style: 'color:var(--suave);font-size:12px' }, M.entradas ? ` · ${pct(g.valor, M.entradas)}%` : '')),
+      el('b', { class: 'num' + (g.nome === 'Futuro' ? ' verde' : '') }, reais(g.valor)),
+      el('div', { class: 'uso-barra', style: 'flex-basis:100%;margin:2px 0 0;height:6px' }, el('i', { style: `width:${Math.min(100, g.valor / base * 100)}%;background:${COR_GRUPO[g.nome]}` }))))),
+    el('p', { class: 'sub', style: 'margin:8px 0 0' }, 'Referência popular (regra 50/30/20): até 50% em essenciais, 30% em estilo de vida e 20% guardados. É uma régua, não uma meta.'))
+}
+
+// Entradas e gastos de todos os meses lado a lado (toque num mes para abri-lo).
+function evolucao(largura = 's12') {
+  const maior = Math.max(1, ...D.meses.map(m => Math.max(D.porMes[m].entradas, D.porMes[m].gastos)))
+  const alt = v => Math.round(v / maior * 100) + '%'
+  return el('section', { class: 'card ' + largura },
+    el('h2', {}, 'Evolução mês a mês'),
+    el('p', { class: 'sub' }, el('span', { class: 'bola', style: 'background:var(--verde)' }), 'Entradas  ', el('span', { class: 'bola', style: 'background:var(--c2);margin-left:10px' }), 'Gastos · toque num mês para abri-lo'),
+    el('div', { class: 'colunas' }, ...D.meses.map(m => {
+      const P = D.porMes[m]
+      return el('button', { 'aria-current': String(m === mesAtual), onclick: () => { mesAtual = m; filtroCategoria = null; desenhar() },
+        title: `${nomeMes(m)}: entradas ${reais(P.entradas)}, gastos ${reais(P.gastos)}`, 'aria-label': `${nomeMes(m)}: entradas ${reais(P.entradas)}, gastos ${reais(P.gastos)}` },
+        el('div', { class: 'par' }, el('i', { style: `height:${alt(P.entradas)};background:var(--verde)` }), el('i', { style: `height:${alt(P.gastos)};background:var(--c2)` })),
+        el('small', {}, CURTO[+m.slice(5) - 1] + '/' + m.slice(2, 4)),
+        el('small', { class: 'num ' + (P.resultado >= 0 ? 'verde' : 'vermelho'), style: 'padding:0 0 6px;font-weight:600' }, (P.resultado >= 0 ? '+' : '') + Math.round(P.resultado / 100).toLocaleString('pt-BR')))
+    })))
+}
+
+// Gasto acumulado dia a dia do mes, comparado com a media dos meses anteriores ate o mesmo dia.
+function acumulado(m) {
+  const dias = new Date(+m.slice(0, 4), +m.slice(5), 0).getDate()
+  const v = Array(dias + 1).fill(0)
+  for (const t of D.porMes[m].lancamentos) if (t.tipo === 'despesa') v[+t.data.slice(8)] -= t.valor
+  for (let d = 1; d <= dias; d++) v[d] += v[d - 1]
+  return v
+}
+function ritmo(M) {
+  const anteriores = D.meses.filter(m => m < mesAtual)
+  if (!anteriores.length) return null
+  const atual = acumulado(mesAtual)
+  const dias = atual.length - 1
+  const hoje = new Date(), emAndamento = mesAtual === `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
+  const ate = emAndamento ? hoje.getDate() : dias
+  const curvas = anteriores.map(acumulado)
+  const media = Array.from({ length: dias + 1 }, (_, d) => Math.round(curvas.reduce((s, c) => s + c[Math.min(d, c.length - 1)], 0) / curvas.length))
+  const dif = atual[ate] - media[ate]
+  const W = 320, H = 120, maior = Math.max(1, ...atual, ...media)
+  const pts = (c, n) => c.slice(0, n + 1).map((v, d) => `${(d / dias * W).toFixed(1)},${(H - v / maior * (H - 6)).toFixed(1)}`).join(' ')
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg')
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Gasto acumulado do mês comparado com a média')
+  for (const [p, cor, tra] of [[pts(media, dias), 'var(--suave)', '4 4'], [pts(atual, ate), 'var(--azul)', '']]) {
+    const l = document.createElementNS(NS, 'polyline')
+    for (const [k, v] of Object.entries({ points: p, fill: 'none', stroke: cor, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': tra })) l.setAttribute(k, v)
+    svg.append(l)
+  }
+  return el('section', { class: 'card s4 ritmo' },
+    el('h2', {}, 'Ritmo dos gastos'),
+    el('p', { class: 'sub' }, emAndamento ? `Até o dia ${ate}, comparado com a média de ${anteriores.length} mês(es) anteriores` : `Mês inteiro, comparado com a média de ${anteriores.length} mês(es) anteriores`),
+    el('div', { class: 'medio num' }, reais(atual[ate])),
+    el('span', { class: 'selo ' + (dif <= 0 ? 'bom' : 'ruim') }, el('span', { class: 'num' }, reais(Math.abs(dif))), dif <= 0 ? ' abaixo da média' : ' acima da média'),
+    svg,
+    el('p', { class: 'sub', style: 'margin:4px 0 0' }, el('span', { class: 'bola', style: 'background:var(--azul)' }), 'Este mês   ', el('span', { class: 'bola', style: 'background:var(--suave);margin-left:8px' }), 'Média (tracejado)'))
+}
+
+const ABAS = [['geral', '▦', 'Visão geral'], ['evolucao', '↗', 'Evolução'], ['categorias', '◔', 'Categorias'], ['lancamentos', '≡', 'Lançamentos'], ['cartoes', '▭', 'Cartões'], ['parcelas', '◷', 'Parcelas'], ['entradas', '↘', 'Entradas'], ['patrimonio', '◎', 'Quanto eu tenho']]
+const abrirMenu = aberto => {
+  document.body.classList.toggle('menu-aberto', aberto)
+  document.getElementById('abrir-menu').setAttribute('aria-expanded', String(aberto))
+}
+function irPara(nova, categoria = null) {
+  aba = nova; filtroCategoria = categoria; quantosLanc = categoria ? 100 : 30
+  abrirMenu(false); desenhar(); window.scrollTo({ top: 0 })
+}
+function menu(M) {
+  const nav = document.getElementById('menu'); nav.replaceChildren()
+  for (const [id, icone, nome] of ABAS) nav.append(el('button', { 'aria-current': String(aba === id && !(id === 'lancamentos' && filtroCategoria)), onclick: () => irPara(id) }, el('span', { 'aria-hidden': 'true' }, icone), nome))
+  nav.append(el('div', { class: 'rotulo' }, 'Categorias do mês'))
+  nav.append(el('div', { class: 'cats' }, ...M.categorias.map((c, i) => el('button', { 'aria-current': String(filtroCategoria === c.nome), onclick: () => irPara('lancamentos', c.nome) },
+    el('span', { class: 'bola', style: 'background:' + CORES[Math.min(i, 6)] + ';margin:0' }), c.nome, el('span', { class: 'qtd num' }, reais(c.valor))))))
+}
+function categoriasCompletas(M) {
+  return el('section', { class: 'card s12' },
+    el('h2', {}, 'Categorias'),
+    el('p', { class: 'sub' }, 'Toque numa categoria para ver os lançamentos dela'),
+    el('ul', { class: 'lista' }, ...M.categorias.map((c, i) => {
+      const v = c.anterior ? Math.round((c.valor - c.anterior) / c.anterior * 100) : null
+      return el('li', {},
+        el('span', { class: 'bola', style: 'background:' + CORES[Math.min(i, 6)] }),
+        el('button', { class: 'nome', onclick: () => irPara('lancamentos', c.nome) }, c.nome, el('span', { style: 'color:var(--suave);font-size:12px' }, ' · ' + c.qtd + ' lanç. · ' + pct(c.valor, M.gastos) + '%')),
+        el('span', { class: 'var ' + (v === null ? '' : v > 0 ? 'vermelho' : 'verde') }, v === null ? 'novo' : (v > 0 ? '↑' : '↓') + Math.abs(v) + '%'),
+        el('b', { class: 'num' }, reais(c.valor)))
+    })))
+}
+
+function desenhar() {
+  const M = D.porMes[mesAtual]
+  menu(M)
+  const i = D.meses.indexOf(mesAtual)
+  const t = document.getElementById('titulo-mes'); t.textContent = nomeMes(mesAtual) + ' '; t.append(el('span', {}, mesAtual.slice(0, 4)))
+  document.getElementById('ant').disabled = i === 0
+  document.getElementById('prox').disabled = i === D.meses.length - 1
+  const p = document.getElementById('painel'); p.replaceChildren()
+  for (const a of M.avisos) p.append(el('div', { class: 'aviso' }, '⚠️ Dados incompletos: ', a.slice(0, 220)))
+  if (mesAtual === D.ultimo) p.append(el('div', { class: 'aviso', style: 'background:var(--azul-claro);color:var(--azul)' }, 'Mês em andamento: os números ainda vão mudar.'))
+  const telas = {
+    geral: () => [resumo(M), patrimonio(), rosca(M), cartoes(M), ritmo(M), grupos(M, 's8'), evolucao(), entradas(M), parcelas(M), lancamentos(M)],
+    evolucao: () => [evolucao(), ritmo(M), resumo(M)],
+    categorias: () => [grupos(M), rosca(M), categoriasCompletas(M)],
+    lancamentos: () => [lancamentos(M)],
+    cartoes: () => [cartoes(M, true), patrimonio('s12')],
+    parcelas: () => [parcelas(M)],
+    entradas: () => [entradas(M)],
+    patrimonio: () => [patrimonio('s6'), cartoes(M)],
+  }
+  // Fora da visao geral, as secoes sozinhas ocupam a largura toda.
+  const inteira = ['parcelas', 'entradas', 'categorias']
+  p.append(...telas[aba]().filter(Boolean).map(sec => { if (inteira.includes(aba)) sec.className = sec.className.replace(/s\d+/, 's12'); return sec }))
+}
+
+document.getElementById('ant').onclick = () => { mesAtual = D.meses[D.meses.indexOf(mesAtual) - 1]; filtroCategoria = null; quantosLanc = 15; desenhar() }
+document.getElementById('prox').onclick = () => { mesAtual = D.meses[D.meses.indexOf(mesAtual) + 1]; filtroCategoria = null; quantosLanc = 15; desenhar() }
+document.getElementById('abrir-menu').onclick = () => abrirMenu(!document.body.classList.contains('menu-aberto'))
+document.getElementById('veu').onclick = () => abrirMenu(false)
+addEventListener('keydown', e => { if (e.key === 'Escape') abrirMenu(false) })
+const olho = document.getElementById('olho')
+const aplicarOlho = on => { document.body.classList.toggle('ocultar', on); olho.textContent = on ? '🙈' : '👁'; guardar('painel-ocultar', on ? '1' : '0') }
+olho.onclick = () => aplicarOlho(!document.body.classList.contains('ocultar'))
+aplicarOlho(lembrar('painel-ocultar') === '1')
+const temaSalvo = lembrar('painel-tema'); if (temaSalvo) document.documentElement.dataset.tema = temaSalvo
+document.getElementById('tema').onclick = () => {
+  const escuro = document.documentElement.dataset.tema ? document.documentElement.dataset.tema === 'escuro' : matchMedia('(prefers-color-scheme: dark)').matches
+  document.documentElement.dataset.tema = escuro ? 'claro' : 'escuro'; guardar('painel-tema', document.documentElement.dataset.tema)
+}
+const escreverRodape = () => document.getElementById('rodape').textContent = `Atualizado em ${D.geradoEm}. Valores calculados a partir dos bancos conectados pelo Open Finance. Faturas somam os lançamentos de cada uma; o banco pode ter ajustes.`
+// O menu gruda logo abaixo do topo, qualquer que seja a altura dele.
+const ajustarTopo = () => document.documentElement.style.setProperty('--alt-topo', document.querySelector('.topo').offsetHeight + 'px')
+addEventListener('resize', ajustarTopo); ajustarTopo()
+obterDados().then(dados => { D = dados; mesAtual = D.ultimo; escreverRodape(); desenhar() })
+  .catch(() => { document.getElementById('painel').textContent = 'Não consegui carregar os dados. Confira a internet e abra de novo.' })
+</script>
+</body>
+</html>
